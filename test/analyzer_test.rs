@@ -1,22 +1,36 @@
 use textlens::analyzer::*;
 
 #[test]
-fn test_count_lines() {
-    let content = "hello\nworld\nrust\n";
-    assert_eq!(count_lines(content), 3);
+fn test_basic_analysis() {
+    let content = "hello world\nhello rust";
+    std::fs::write("test_sample.txt", content).unwrap();
+
+    let result = analyze("test_sample.txt", 10).unwrap();
+
+    // 라인 수 확인
+    assert_eq!(result.line_count, 2);
+
+    // 단어 수 확인
+    assert_eq!(result.word_count, 4);
+
+    // 특정 단어 빈도 확인
+    assert_eq!(*result.frequencies.get("hello").unwrap(), 2);
+    assert_eq!(*result.frequencies.get("world").unwrap(), 1);
+    assert_eq!(*result.frequencies.get("rust").unwrap(), 1);
+
+    // 파일 삭제
+    std::fs::remove_file("test_sample.txt").unwrap();
 }
 
 #[test]
-fn test_tokenize() {
-    let content = "Hello, Rust world!";
-    let tokens = tokenize(content);
-    assert_eq!(tokens, vec!["hello", "rust", "world"]);
+fn test_empty_file() {
+    std::fs::write("empty.txt", "").unwrap();
+    let result = analyze("empty.txt", 10).unwrap();
+
+    assert_eq!(result.line_count, 0);
+    assert_eq!(result.word_count, 0);
+    assert!(result.frequencies.is_empty());
+
+    std::fs::remove_file("empty.txt").unwrap();
 }
 
-#[test]
-fn test_word_frequency() {
-    let words = vec!["rust".into(), "rust".into(), "lang".into()];
-    let freq = word_frequency(&words);
-    assert_eq!(*freq.get("rust").unwrap(), 2);
-    assert_eq!(*freq.get("lang").unwrap(), 1);
-}

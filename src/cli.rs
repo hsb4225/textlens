@@ -1,4 +1,4 @@
-use clap::{Parser, ArgEnum};
+use clap::{Parser, ValueEnum};
 
 /// CLI 옵션 구조체
 #[derive(Parser, Debug)]
